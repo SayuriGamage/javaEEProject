@@ -8,7 +8,7 @@
 <h1>Ajax Example project</h1>
 <p id="para">This is an Example for Ajax</p>
 <button id="ajax-button">Send a Ajax Request</button>
-<img src="   " id="image" width="100">
+<img src="" id="image" width="100">
 <table>
     <thead>
     <tr>
@@ -23,7 +23,7 @@
     </tbody>
 
 </table>
-<script src="JS/jquery-3.7.1.min.js"></script>
+<script src="assests/JS/jquery-3.7.1.min.js"></script>
 
 <!--<script>
     $('#ajax-button').click(function (){    console.log("request started");
@@ -58,7 +58,8 @@
     $("#ajax-button").click( function (){
         console.log("clicked")
         $.ajax({
-            url : "http://localhost:8080/HelloServerlet_war_exploded/hello",
+            url : "http://localhost:8080/HelloServerlet_war_exploded/hello" ,
+            method:"GET",
             async :false,
             success : function (response){
                 //   $("#pra").text(response);
@@ -66,7 +67,7 @@
                 data = response;
                  console.log(data);
 
-                data.map( (item) =>{
+                data.map((item) =>{
                     let details = `<tr>
             <td>${item.id}</td>
             <td>${item.name}</td>

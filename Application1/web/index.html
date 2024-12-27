@@ -7,14 +7,7 @@
     <title>POS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
-        #pic {
-            background-image: url(".idea/assests/images/istockphoto-1430548751-612x612.jpg");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            height: calc(100vh - 20px);
-            margin: 0;
-        }
+
 
         #pic>h1 {
             color:white;
@@ -81,16 +74,13 @@
                 <form id="customerForm">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <input type="text" id="name" class="form-control" placeholder="Full name" aria-label="Name">
+                            <input type="text" id="id" class="form-control" placeholder="id" aria-label="id">
                         </div>
                         <div class="col-md-6">
-                            <input type="text" id="telephone" class="form-control" placeholder="Tel number" aria-label="Tel Number">
+                            <input type="text" id="name" class="form-control" placeholder="name" aria-label="name">
                         </div>
                         <div class="col-md-6">
-                            <input type="text" id="email" class="form-control" placeholder="Email" aria-label="Email">
-                        </div>
-                        <div class="col-md-6">
-                            <input type="text"  id="address"  class="form-control" placeholder="Address" aria-label="Address">
+                            <input type="text"  id="address"  class="form-control" placeholder="address" aria-label="Address">
                         </div>
                     </div>
                     <div class="d-flex justify-content-center mt-4 gap-3">
@@ -107,9 +97,8 @@
         <table class="table table-striped mx-auto" style="max-width: 1000px;">
             <thead>
             <tr>
-                <th scope="col">Full name</th>
-                <th scope="col">Tel number</th>
-                <th scope="col">Email</th>
+                <th scope="col">id</th>
+                <th scope="col">Name</th>
                 <th scope="col">Address</th>
             </tr>
             </thead>
@@ -293,13 +282,154 @@
     </div>
 </section>
 
-<script src=".idea/assests/jquery-3.7.1.min.js"></script>
+<script src="js/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="module" src="controller/CustomerController.js"></script>
 <script type="module" src="controller/ItemController.js"></script>
 <script type="module" src="controller/OrderController.js"></script>
+<script>
 
+
+    const fetchItemData =() =>{
+        $.ajax({
+            url: "http://localhost:8080/Application1_war_exploded/item",
+            type: "GET",
+            success: (response) => {
+                console.log(response)
+                $('#itemTableBody').empty();
+                response.forEach(
+                    (item) => {
+
+                        $('#itemTableBody').append(`
+                            <tr>
+                                <td>${item.code}</td>
+                                <td>${item.description}</td>
+                                <td>${item.qtyOnHand}</td>
+                                <td>${item.unitPrice}</td>
+                            </tr>
+                        `)
+                    }
+                )
+            },
+        })
+    }
+
+    $('#saveItem').click((e =>{
+        const code=$('#code').val()
+        const  description=$('#description').val()
+        const  qty=$('#qtyOnHand').val()
+        const  price=$('#price').val()
+
+
+
+        $.ajax({
+            url: "http://localhost:8080/Application1_war_exploded/item",
+            type:"POST",
+            data:{
+              code:code,
+                description:description,
+                qtyOnHand:qty,
+                unitPrice:price
+            },
+            success:() =>{
+              fetchItemData()
+            }
+        })
+
+    }))
+
+
+
+
+    const fetchCustomerData =() =>{
+        $.ajax({
+            url: "http://localhost:8080/Application1_war_exploded/customer",
+            type: "GET",
+            success: (response) => {
+                console.log(response)
+                $('#customerTableBody').empty();
+                response.forEach(
+                    (customer) => {
+
+                        $('#customerTableBody').append(`
+                            <tr>
+                                <td>${customer.id}</td>
+                                <td>${customer.name}</td>
+                                <td>${customer.address}</td>
+                            </tr>
+                        `)
+                    }
+                )
+            },
+        })
+    }
+
+    $('#save').click((e =>{
+        const id=$('#id').val()
+        const  name=$('#name').val()
+        const  address=$('#address').val()
+
+        $.ajax({
+            url: "http://localhost:8080/Application1_war_exploded/customer",
+            type:"POST",
+            data:{
+                id:id,
+                name:name,
+                address:address
+            },
+            success:() =>{
+                fetchCustomerData()
+            }
+        })
+
+    }))
+
+    $('#update').click((e =>{
+        const id=$('#id').val()
+        const  name=$('#name').val()
+        const  address=$('#address').val()
+
+        $.ajax({
+            url: `http://localhost:8080/Application1_war_exploded/customer?id=${id}&name=${name}&address=${address}`,
+            type:"PUT",
+            data:{
+                id:id,
+                name:name,
+                address:address
+            },
+            success:() =>{
+                fetchCustomerData()
+            }
+        })
+    }))
+
+
+    $('#delete').click((e =>{
+        if (confirm("Are you sure ?")) {
+            const id=$('#id').val()
+            $.ajax({
+                url:`http://localhost:8080/Application1_war_exploded/customer?id=${id}`,
+                type:"DELETE",
+                success:()=>{
+                    fetchCustomerData()
+                },
+                error:()=>{
+                    console.log("customer is not saved")
+                }
+            })
+        } else {
+            console.log("no")
+        }
+
+    }))
+
+
+
+    fetchCustomerData()
+    fetchItemData();
+
+</script>
 <script>
     const homeSection = document.getElementById("pic");
     const customerSection = document.getElementById("Customers");
