@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AJAX Example</title>
+</head>
+<body>
+<h1>Ajax Example project</h1>
+<p id="para">This is an Example for Ajax</p>
+<button id="ajax-button">Send a Ajax Request</button>
+<img src="   " id="image" width="100">
+<table>
+    <thead>
+    <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>add</th>
+    </tr>
+    </thead>
+
+    <tbody id="body">
+
+    </tbody>
+
+</table>
+<script src="JS/jquery-3.7.1.min.js"></script>
+
+<!--<script>
+    $('#ajax-button').click(function (){    console.log("request started");
+        var http = new XMLHttpRequest();
+        http.open('GET', '../db/db.txt',false);
+        http.send();
+        http.onreadystatechange = function (){
+            console.log(http.readyState,"Inside on Ready state change event");        console.log(http.responseText)
+            if (http.status == 200 && http.readyState == 4){
+                $("#para").text(http.responseText);
+            }    }
+        console.log("Request Finished");
+    });
+
+  
+</script>-->
+<!--
+<script>
+    console.log("start");
+    console.log("middle");
+    console.log("end");
+
+    console.log("start");
+    setTimeout(() => {
+        console.log("middle");
+    },2000);
+
+    console.log("end");
+</script>
+-->
+<script>
+    $("#ajax-button").click( function (){
+        console.log("clicked")
+        $.ajax({
+            url : "http://localhost:8080/HelloServerlet_war_exploded/hello",
+            async :false,
+            success : function (response){
+                //   $("#pra").text(response);
+                let data=[] ;
+                data = response;
+                 console.log(data);
+
+                data.map( (item) =>{
+                    let details = `<tr>
+            <td>${item.id}</td>
+            <td>${item.name}</td>
+            <td>${item.email}</td>
+        </tr>`
+
+
+                    $("#body").append(details);
+                });
+
+
+
+
+            },
+            error : function (error){
+                console.log(error);
+            }
+        });
+        console.log("iwaraaai")
+    })
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact type="ear" name="gdse">
+    <output-path>$PROJECT_DIR$/out/artifacts/gdse</output-path>
+    <root id="archive" name="gdse.ear">
+      <element id="directory" name="lib">
+        <element id="archive" name="HelloServerlet.jar">
+          <element id="module-output" name="HelloServerlet" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>

@@ -1,0 +1,6 @@
+<component name="ArtifactManager">
+  <artifact type="ear" name="gdse69">
+    <output-path>$PROJECT_DIR$/out/artifacts/gdse69</output-path>
+    <root id="archive" name="gdse69.ear" />
+  </artifact>
+</component>
