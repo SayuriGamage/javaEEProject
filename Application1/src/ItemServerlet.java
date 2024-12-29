@@ -46,14 +46,13 @@ public class ItemServerlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.setContentType("application/json");
         PrintWriter out = resp.getWriter();
         try {
             Class.forName("com.mysql.jdbc.Driver");
             Connection connection= DriverManager.getConnection("jdbc:mysql://localhost:3306/company","root","Ijse@123");
 
           ResultSet resultSet= connection.prepareStatement(" select * from item").executeQuery();
-          itemsList.clear();
-           resultSet.next();
             JsonArrayBuilder allitems=Json.createArrayBuilder();
 
           while (resultSet.next()){
@@ -64,9 +63,6 @@ public class ItemServerlet extends HttpServlet {
 
               System.out.println("data tika enne nane");
               System.out.println(code + " " + description + " " + qty + " " + price);
-
-              ItemDTO itemDTO= new ItemDTO(code,description,qty,price);
-              itemsList.add(itemDTO);
          JsonObjectBuilder item= createObjectBuilder();
          item.add("code",code);
          item.add("description",description);
@@ -74,8 +70,7 @@ public class ItemServerlet extends HttpServlet {
          item.add("unitPrice",price);
          allitems.add(item);
           }
-       resp.setContentType("application/json");
-          resp.getWriter().write(allitems.build().toString());
+            out.write(allitems.build().toString());
 
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -85,4 +80,41 @@ public class ItemServerlet extends HttpServlet {
 
     }
 
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            Connection connection= DriverManager.getConnection("jdbc:mysql://localhost:3306/company","root","Ijse@123");
+
+        PreparedStatement preparedStatement= connection.prepareStatement("update item set description=?,qtyOnhand=?,unitPrice=? where code=?");
+           preparedStatement.setString(1,req.getParameter("description"));
+           preparedStatement.setInt(2,Integer.parseInt(req.getParameter("qtyOnHand")));
+           preparedStatement.setDouble(3,Double.parseDouble(req.getParameter("unitPrice")));
+           preparedStatement.setString(4,req.getParameter("code"));
+           preparedStatement.executeUpdate();
+           resp.setContentType("application/json");
+          resp.getWriter().write("{\"message\":\"item updated\"}");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            Connection connection= DriverManager.getConnection("jdbc:mysql://localhost:3306/company","root","Ijse@123");
+                     PreparedStatement preparedStatement= connection.prepareStatement("delete from item where code=?");
+                     preparedStatement.executeUpdate();
+                     resp.setContentType("application/json");
+                     resp.getWriter().write("{\"message\":\"item deleted\"}");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

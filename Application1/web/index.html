@@ -183,10 +183,10 @@
 
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <input type="text" class="form-control" placeholder="Customer Tel" aria-label="Customer Tel" id="cusTel">
+                                <input type="text" class="form-control" placeholder="Customerid" aria-label="Customerid" id="cusId">
                             </div>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" placeholder="Customer Name" aria-label="Customer Name" id="cusName">
+                                <input type="text" class="form-control" placeholder="CustomerName" aria-label="CustomerName" id="cusName">
                             </div>
                         </div>
 
@@ -285,13 +285,65 @@
 <script src="js/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script type="module" src="controller/CustomerController.js"></script>
-<script type="module" src="controller/ItemController.js"></script>
-<script type="module" src="controller/OrderController.js"></script>
+
 <script>
+
+    $(document).ready(function () {
+        $('#cusId').on('keypress', function (e) {
+            const customerId = $(this).val() + String.fromCharCode(e.which); // Append the keypress character
+
+                $.ajax({
+                    url: 'http://localhost:8080/Application1_war_exploded/lcustomer',
+                    type: 'GET',
+                    data: { customerId: customerId },
+                    success: function (response) {
+                        if (response.customerName) {
+                            $('#cusName').val(response.customerName);
+                        } else {
+                            $('#cusName').val('');
+                        }
+                    },
+                    error: function () {
+                        $('#name').val('');
+                        console.error('Error fetching customer name');
+                    }
+                });
+        });
+    });
+
+
+    let orderID =0;
+
+    function generateOrderID() {
+        console.log("Generating Order ID...");
+        const id = `ORD-${orderID}`;
+        orderID++;
+        console.log(`Generated Order ID: ${id}`);
+        return id;
+    }
+
+
+    function getCurrentDate() {
+        const today = new Date();
+        return today.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+    }
+
+    $(document).ready(function () {
+        loadOrderDetails();
+    });
+
+    function loadOrderDetails() {
+        const newOrderID = generateOrderID();
+        const orderDate = getCurrentDate();
+
+        // Set values to text fields
+        $("#orderId").val(newOrderID);
+        $("#orderDate").val(orderDate);
+    }
 
 
     const fetchItemData =() =>{
+        console.log("me redda wada karanne na");
         $.ajax({
             url: "http://localhost:8080/Application1_war_exploded/item",
             type: "GET",
@@ -315,6 +367,28 @@
         })
     }
 
+    $('#updateItem').click((e =>{
+        const code=$('#code').val()
+        const description=$('#description').val()
+        const qty=$('#qtyOnHand').val()
+        const price=$('#price').val()
+
+
+        $.ajax({
+            url: `http://localhost:8080/Application1_war_exploded/item?code=${code}&description=${description}&qtyOnHand=${qty}&unitPrice=${price}`,
+            type:"PUT",
+            data:{
+              code:code,
+                description:description,
+                qtyOnHand:qty,
+                unitPrice:price
+            },
+            success:() =>{
+               fetchItemData();
+            }
+        })
+    }))
+
     $('#saveItem').click((e =>{
         const code=$('#code').val()
         const  description=$('#description').val()
@@ -336,6 +410,26 @@
               fetchItemData()
             }
         })
+
+    }))
+
+
+    $('#deleteItem').click((e =>{
+        if (confirm("Are you sure ?")) {
+            const code=$('#code').val()
+            $.ajax({
+                url:`http://localhost:8080/Application1_war_exploded/item?code=${code}`,
+                type:"DELETE",
+                success:()=>{
+                 fetchItemData()
+                },
+                error:()=>{
+                    console.log("item is not delete")
+                }
+            })
+        } else {
+            console.log("no")
+        }
 
     }))
 
