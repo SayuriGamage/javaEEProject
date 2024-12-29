@@ -185,9 +185,6 @@
                             <div class="col-md-6">
                                 <input type="text" class="form-control" placeholder="Customerid" aria-label="Customerid" id="cusId">
                             </div>
-                            <div class="col-md-6">
-                                <input type="text" class="form-control" placeholder="CustomerName" aria-label="CustomerName" id="cusName">
-                            </div>
                         </div>
 
 
@@ -197,7 +194,6 @@
                             </div>-->
                             <select class="form-select form-select-sm" aria-label="Small select example" id="itCode" >
                                 <option selected>Select item code</option>
-                                <option>code</option>
                             </select>
 
                             <div class="col-md-6">
@@ -287,30 +283,46 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
+    const selectItemIds = () => {
+        $.ajax({
+            url: "http://localhost:8080/Application1_war_exploded/order",
+            type: "GET",
+            success: (res) => {
+                const select = $('#itCode');
 
-    $(document).ready(function () {
-        $('#cusId').on('keypress', function (e) {
-            const customerId = $(this).val() + String.fromCharCode(e.which); // Append the keypress character
+                select.empty();
 
-                $.ajax({
-                    url: 'http://localhost:8080/Application1_war_exploded/lcustomer',
-                    type: 'GET',
-                    data: { customerId: customerId },
-                    success: function (response) {
-                        if (response.customerName) {
-                            $('#cusName').val(response.customerName);
-                        } else {
-                            $('#cusName').val('');
-                        }
-                    },
-                    error: function () {
-                        $('#name').val('');
-                        console.error('Error fetching customer name');
-                    }
+                select.append('<option value="" disabled selected>Select Item Code</option>');
+
+                res.item.forEach(item => {
+                    select.append(`<option value="${item.code}">${item.code}</option>`);
                 });
+            },
+            error: (err) => {
+                console.error("Error loading items:", err);
+            }
         });
-    });
+    };
 
+
+    $('#itCode').change(function() {
+        const selectedCode = $(this).val();
+        if (selectedCode) {
+            $.ajax({
+                url: `http://localhost:8080/Application1_war_exploded/item?code=${selectedCode}`,
+                type: "GET",
+                success: (item) => {
+
+                    $('#itName').val(item.description);
+                    $('#qtyOnHand1').val(item.qtyOnHand);
+                    $('#uPrice').val(item.unitPrice);
+                },
+                error: (err) => {
+                    console.error("Error fetching item details:", err);
+                }
+            });
+        }
+    });
 
     let orderID =0;
 
@@ -522,6 +534,7 @@
 
     fetchCustomerData()
     fetchItemData();
+    selectItemIds();
 
 </script>
 <script>
