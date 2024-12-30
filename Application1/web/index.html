@@ -336,7 +336,7 @@
                     itemCode:element.itemCode
                 },
                 success:function (response){
-                    updateItem(element.itemCode,element.qty);
+                    updateItem(element.itemCode,element.qtyOnHand);
                 },
                 error:function (error){
                     console.log(error)
@@ -346,14 +346,13 @@
 
    }
 
-   function updateItem(itemCode,qty){
+   function updateItem(itemCode,qtyOnHand){
         $.ajax({
-            url:'http://localhost:8080/Application1_war_exploded/uitem',
+            url:'http://localhost:8080/Application1_war_exploded/update',
             method:'PUT',
-            contentType: 'application/json',
             data:JSON.stringify({
                itemCode:itemCode,
-                qty:qty
+                qtyOnHand:qtyOnHand
             }),
             success:function (response){
                // cartData.splice(0,cartData.length)

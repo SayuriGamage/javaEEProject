@@ -13,14 +13,14 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 
-@WebServlet(urlPatterns = "/uitem")
+@WebServlet(urlPatterns = "/update")
 public class UpdateItemServerlet extends HttpServlet {
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
        JsonObject jsonObject= Json.createReader(req.getReader()).readObject();
 
        String id=jsonObject.getString("itemCode");
-        int quantity=jsonObject.getInt("qty");
+        int quantity=jsonObject.getInt("qtyOnHand");
         System.out.println("methana quntity eka update wenne naaaa");
         System.out.println(id);
         System.out.println(quantity);
