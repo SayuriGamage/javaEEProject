@@ -20,10 +20,10 @@ public class UpdateItemServerlet extends HttpServlet {
        JsonObject jsonObject= Json.createReader(req.getReader()).readObject();
 
        String id=jsonObject.getString("itemCode");
-       String qty=jsonObject.getString("qry");
+        int quantity=jsonObject.getInt("qty");
         System.out.println("methana quntity eka update wenne naaaa");
         System.out.println(id);
-        System.out.println(qty);
+        System.out.println(quantity);
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -31,7 +31,7 @@ public class UpdateItemServerlet extends HttpServlet {
 
             PreparedStatement pst=connection.prepareStatement("update item set qtyOnHand=qtyOnHand-? where code=?");
 
-            pst.setString(1,qty);
+            pst.setInt(1,quantity);
             pst.setString(2,id);
             pst.executeUpdate();
         } catch (ClassNotFoundException e) {
@@ -39,7 +39,5 @@ public class UpdateItemServerlet extends HttpServlet {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
-
     }
 }

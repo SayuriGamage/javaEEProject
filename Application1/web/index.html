@@ -350,6 +350,7 @@
         $.ajax({
             url:'http://localhost:8080/Application1_war_exploded/uitem',
             method:'PUT',
+            contentType: 'application/json',
             data:JSON.stringify({
                itemCode:itemCode,
                 qty:qty
@@ -461,16 +462,6 @@
     }
 
     selectItemsIds()
-
-
-
-
-
-
-
-
-
-
 
 
     let orderID =0;

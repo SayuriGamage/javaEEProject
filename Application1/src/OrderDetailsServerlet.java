@@ -18,6 +18,7 @@ public class OrderDetailsServerlet extends HttpServlet {
         String orderk=req.getParameter("orderId");
         String itemk=req.getParameter("itemCode");
 
+
       /*  System.out.println("order detail eke values tika enawada");
         System.out.println(orderk);
         System.out.println(itemk);*/
