@@ -107,7 +107,8 @@ public class ItemServerlet extends HttpServlet {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             Connection connection= DriverManager.getConnection("jdbc:mysql://localhost:3306/company","root","Ijse@123");
-                     PreparedStatement preparedStatement= connection.prepareStatement("delete from item where code=?");
+
+            PreparedStatement preparedStatement= connection.prepareStatement("delete from item where code=?");
                      preparedStatement.executeUpdate();
                      resp.setContentType("application/json");
                      resp.getWriter().write("{\"message\":\"item deleted\"}");

@@ -182,11 +182,16 @@
 
 
                         <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <input type="text" class="form-control" placeholder="Customerid" aria-label="Customerid" id="cusId">
-                            </div>
-                        </div>
+                            <select class="form-select form-select-sm" aria-label="Small select example" id="cusId" >
+                                <option selected>Select Customer Id</option>
+                            </select>
 
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" placeholder="customer Name" aria-label="Item Name" id="cusName">
+                            </div>
+
+
+                        </div>
 
                         <div class="row g-3 mb-3">
                           <!--  <div class="col-md-6">
@@ -229,29 +234,10 @@
                             <div class="col-md-6">
                                 <input type="text" class="form-control" placeholder="Total" aria-label="Total" id="netTotal">
                             </div>
-                            <div class="col-md-6">
-                                <input type="text" class="form-control" placeholder="Sub Total" aria-label="Sub Total" id="subTotal">
-                            </div>
-                        </div>
 
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <input type="text" class="form-control" placeholder="Cash" aria-label="Cash" id="cash">
-                            </div>
-                            <div class="col-md-6">
-                                <input type="text" class="form-control" placeholder="Discount" aria-label="Discount">
-                            </div>
-                        </div>
-
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-12">
-                                <input type="text" class="form-control" placeholder="Balance" aria-label="Balance" id="balance">
-                            </div>
                         </div>
                         <div class="d-flex justify-content-center">
-                            <button type="button" class="btn btn-success">Purchase</button>
+                            <button type="button" class="btn btn-success" id="purchase">Purchase</button>
                         </div>
                     </div>
                 </div>
@@ -283,46 +269,209 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    const selectItemIds = () => {
-        $.ajax({
-            url: "http://localhost:8080/Application1_war_exploded/order",
-            type: "GET",
-            success: (res) => {
-                const select = $('#itCode');
 
-                select.empty();
+    let cartData=[];
+    let tot=0;
 
-                select.append('<option value="" disabled selected>Select Item Code</option>');
+    $("#addToCart").click( (e)=>{
+      let itemCode=  $('#itCode').val();
+      let des=$('#itName').val();
+      let price=$('#uPrice').val();
+      let qty=$('#qty').val();
+      let total=qty*price;
+       tot= tot + total;
 
-                res.item.forEach(item => {
-                    select.append(`<option value="${item.code}">${item.code}</option>`);
-                });
-            },
-            error: (err) => {
-                console.error("Error loading items:", err);
-            }
-        });
-    };
+      let cartObject = {itemCode,des,price,qty,total};
+      cartData.push(cartObject);
+      loadCartData();
+    })
 
+    function loadCartData(){
+        $("#orderTableBody").empty();
+        for(let i=0;i<cartData.length;i++){
+            let row=`<tr>
+<td>${cartData[i].itemCode}</td>
+<td>${cartData[i].des}</td>
+<td>${cartData[i].price}</td>
+<td>${cartData[i].qty}</td>
+<td>${cartData[i].total}</td>
+</tr>`;
 
-    $('#itCode').change(function() {
-        const selectedCode = $(this).val();
-        if (selectedCode) {
-            $.ajax({
-                url: `http://localhost:8080/Application1_war_exploded/item?code=${selectedCode}`,
-                type: "GET",
-                success: (item) => {
-
-                    $('#itName').val(item.description);
-                    $('#qtyOnHand1').val(item.qtyOnHand);
-                    $('#uPrice').val(item.unitPrice);
-                },
-                error: (err) => {
-                    console.error("Error fetching item details:", err);
-                }
-            });
+            $('#orderTableBody').append(row);
         }
-    });
+    }
+
+    $("#purchase").click( (e) =>{
+        $("#netTotal").val(tot);
+         let orderId=$("#orderId").val();
+         let customerId=$("#cusId").val();
+         let itemId=$("#itCode").val();
+         let date=$("#orderDate").val();
+
+         $.ajax({
+             url:"http://localhost:8080/Application1_war_exploded/order",
+             method:'POST',
+             data:{
+                 orderId:orderId,
+                 date:date,
+                 customerId:customerId
+             },
+             success:function (response){
+                 orderDetails(orderId);
+             },
+             error:function (error){
+                 console.log(error)
+             }
+         })
+    })
+
+   function orderDetails(orderId){
+        cartData.forEach(element =>{
+            console.log(element.itemCode);
+            $.ajax({
+                url:'http://localhost:8080/Application1_war_exploded/orders',
+                method:'POST',
+                data:{
+                    orderId:orderId,
+                    itemCode:element.itemCode
+                },
+                success:function (response){
+                    updateItem(element.itemCode,element.qty);
+                },
+                error:function (error){
+                    console.log(error)
+                }
+            })
+        })
+
+   }
+
+   function updateItem(itemCode,qty){
+        $.ajax({
+            url:'http://localhost:8080/Application1_war_exploded/uitem',
+            method:'PUT',
+            data:JSON.stringify({
+               itemCode:itemCode,
+                qty:qty
+            }),
+            success:function (response){
+               // cartData.splice(0,cartData.length)
+                loadOrderDetails();
+                clearfield()
+            }
+        })
+   }
+
+  function clearfield(){
+        $("#orderId").val('');
+        $("#orderDate").val('');
+        $("#cusId").val('');
+        $("#cusName").val('');
+        $("#itCode").val('');
+        $("#itName").val('');
+        $("#uPrice").val('');
+        $("#qtyOnHand1").val('');
+        $("#qty").val('');
+
+    }
+
+
+    const selectCustomerIds =() =>{
+        $.ajax({
+            url: "http://localhost:8080/Application1_war_exploded/customer",
+            method:"GET",
+            success: function (response) {
+                let data =response;
+                $('#cusId').empty();
+                $('#cusId').append(
+                    `<option value="0">Select Customer</option>`
+                );
+                for(let i=0;i<data.length;i++){
+                    $(`#cusId`).append(`<option value="${data[i].id}">${data[i].id}</option>`)
+                }
+            },
+            error: function (){
+                console.log("error")
+            }
+        })
+    }
+    selectCustomerIds()
+
+    $("#cusId").on('change', (e) =>{
+        let cid=e.target.value;
+        $.ajax({
+            url: "http://localhost:8080/Application1_war_exploded/customer",
+            method:"GET",
+            success:function (response){
+                let data = response;
+
+                for(let i=0;i<data.length;i++){
+                    if(cid == data[i].id){
+                        $('#cusName').val(data[i].name);
+                    }
+                }
+            },
+            error:function (error){
+                console.log(error)
+            }
+        })
+    })
+
+   $("#itCode").on('change', (e) =>{
+       let itcode=e.target.value;
+       $.ajax({
+           url: "http://localhost:8080/Application1_war_exploded/item",
+           method:"GET",
+           success:function (response){
+               let data=response;
+               for(let i=0;i<data.length;i++){
+                   if(itcode == data[i].code){
+                       $('#itName').val(data[i].description);
+                       $('#uPrice').val(data[i].unitPrice);
+                       $('#qtyOnHand1').val(data[i].qtyOnHand);
+
+                   }
+               }
+           },
+           error: function (error){
+               console.log(error);
+           }
+       })
+   })
+
+
+    const selectItemsIds =() =>{
+        $.ajax({
+            url: "http://localhost:8080/Application1_war_exploded/item",
+            method:"GET",
+            success: function (response) {
+                let data =response;
+                $('#itCode').empty();
+                $('#itCode').append(
+                    `<option value="0">Select Item</option>`
+                );
+                for(let i=0;i<data.length;i++){
+                    $(`#itCode`).append(`<option value="${data[i].code}">${data[i].code}</option>`)
+                }
+            },
+            error: function (){
+                console.log("error")
+            }
+        })
+    }
+
+    selectItemsIds()
+
+
+
+
+
+
+
+
+
+
+
 
     let orderID =0;
 
@@ -534,7 +683,7 @@
 
     fetchCustomerData()
     fetchItemData();
-    selectItemIds();
+
 
 </script>
 <script>
